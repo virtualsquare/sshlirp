@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 project("sshlirp"
-    DESCRIPTION "instant vde vn based on libslirp"
-    HOMEPAGE_URL "https://github.com/rd235/sshlirp"
+    DESCRIPTION "instant VDE VPN based on libslirp"
+    HOMEPAGE_URL "https://github.com/virtualsquare/sshlirp"
     VERSION 0.0.1
     LANGUAGES C)
 
