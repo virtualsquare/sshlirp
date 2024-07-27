@@ -277,10 +277,12 @@ void mainloop(void) {
 	setslirp_runtimecfg(slirp, &slirpcfg);
 	VDESTREAM *vs = vdestream_open(slirp, STDOUT_FILENO,
 			sreceive, NULL);
-	struct pollfd pfd[] = {{STDIN_FILENO, POLLIN, 0},
-		{vdeslirp_fd(slirp), POLLIN, 0}};
+	struct pollfd pfd[] = {{STDIN_FILENO, POLLIN | POLLHUP, 0},
+		{vdeslirp_fd(slirp), POLLIN | POLLHUP, 0}};
 	while (poll(pfd, 2, -1) > 0) {
 		ssize_t n;
+		if ((pfd[0].revents | pfd[1].revents) & POLLHUP)
+			break;
 		if (pfd[0].revents & POLLIN) {
 			n = read(STDIN_FILENO, buf, 10240);
 			//fprintf(stderr, "-> %zd\n", n);
