@@ -42,6 +42,11 @@ $ make
 $ sudo make install
 ```
 
+# Pre-compiled binaries
+
+Pre-complied staticaly linked binaries are available for testing
+purposes in [this directory](http://www.cs.unibo.it/~renzo/virtualsquare/tutorial_resources/sshlirp/).
+
 # EXAMPLE
 
 Scenario: a user has an account on a remote linux host providing ssh access.
@@ -53,12 +58,12 @@ The VPN can be acrivated in three simple steps:
 
 * copy the static executable on the remote host:
 ```
-$ cp sshlirp-x86_64 remote.mydomain.org:/tmp
+$ scp sshlirp-x86_64 remote.mydomain.org:/tmp/sshlirp
 ```
 
 * start a vdens namespace connected to the remote vpn server
 ```
-$ vdens -R 9.9.9.9 cmd://"ssh remote.mydomain.org /tmp/sshlirp-x86_64"
+$ vdens -R 9.9.9.9 cmd://"ssh remote.mydomain.org /tmp/sshlirp"
 ```
 
 * configure the ip address and route of the vdens, e.g. using udhcpc:
