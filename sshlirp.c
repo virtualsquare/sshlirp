@@ -27,7 +27,7 @@
 #include <libvdeplug.h>
 #include <autoopt.h>
 
-#include <slirp/libvdeslirp.h>
+#include <libvdeslirp.h>
 
 #define NTOP_BUFSIZE 128
 unsigned char buf[10240];
