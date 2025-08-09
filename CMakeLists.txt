@@ -14,7 +14,7 @@ include(CheckSymbolExists)
 set(LIBS_REQUIRED slirp)
 set(HEADERS_REQUIRED slirp/libslirp.h)
 set(CMAKE_REQUIRED_QUIET TRUE)
-set(CMAKE_REQUIRED_LIBRARIES slirp)
+set(CMAKE_REQUIRED_LIBRARIES slirp glib-2.0)
 
 check_symbol_exists("slirp_add_exec" "slirp/libslirp.h" HAS_ADD_EXEC)
 check_symbol_exists("slirp_add_unix" "slirp/libslirp.h" HAS_ADD_UNIX)
