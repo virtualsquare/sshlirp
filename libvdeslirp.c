@@ -32,7 +32,14 @@
 
 #include <slirp/libslirp.h>
 
-//#define FUTURE_SLIRP_fWD_FEATURES
+#if !SLIRP_CHECK_VERSION(4, 9, 0)
+# define slirp_os_socket int
+# define slirp_pollfds_fill_socket slirp_pollfds_fill
+# define register_poll_socket register_poll_fd
+# define unregister_poll_socket unregister_poll_fd
+#endif
+
+//#define FUTURE_SLIRP_FWD_FEATURES
 #define JUMBOMTU 9014
 
 #define LIBSLIRP_POLLFD_SIZE_INCREASE 16
@@ -62,8 +69,8 @@ static int64_t vdeslirp_clock_get_ns(void *opaque);
 static void *vdeslirp_timer_new(SlirpTimerCb cb, void *cb_opaque, void *opaque);
 static void vdeslirp_timer_free(void *timer, void *opaque);
 static void vdeslirp_timer_mod(void *timer, int64_t expire_time, void *opaque);
-static void vdeslirp_register_poll_fd(int fd, void *opaque);
-static void vdeslirp_unregister_poll_fd(int fd, void *opaque);
+static void vdeslirp_register_poll_socket(slirp_os_socket fd, void *opaque);
+static void vdeslirp_unregister_poll_socket(slirp_os_socket fd, void *opaque);
 static void vdeslirp_notify(void *opaque);
 
 struct SlirpCb callbacks = {
@@ -73,8 +80,8 @@ struct SlirpCb callbacks = {
 	.timer_new = vdeslirp_timer_new,
 	.timer_free = vdeslirp_timer_free,
 	.timer_mod = vdeslirp_timer_mod,
-	.register_poll_fd = vdeslirp_register_poll_fd,
-	.unregister_poll_fd = vdeslirp_unregister_poll_fd,
+	.register_poll_socket = vdeslirp_register_poll_socket,
+	.unregister_poll_socket = vdeslirp_unregister_poll_socket,
 	.notify = vdeslirp_notify,
 };
 
@@ -322,7 +329,7 @@ static int vdeslirp_poll_to_slirp(int events) {
 	return ret;
 }
 
-static int vdeslirp_add_poll(int fd, int events, void *opaque) {
+static int vdeslirp_add_poll(slirp_os_socket fd, int events, void *opaque) {
 	struct vdeslirp *slirp = opaque;
 	if (slirp->pfd_len >= slirp->pfd_size) {
 		int newsize = slirp->pfd_size + LIBSLIRP_POLLFD_SIZE_INCREASE;
@@ -346,12 +353,12 @@ static int vdeslirp_get_revents(int idx, void *opaque) {
 	return vdeslirp_poll_to_slirp(slirp->pfd[idx].revents);
 }
 
-static void vdeslirp_register_poll_fd(int fd, void *opaque){
+static void vdeslirp_register_poll_socket(slirp_os_socket fd, void *opaque) {
 	(void) fd;
 	(void) opaque;
 }
 
-static void vdeslirp_unregister_poll_fd(int fd, void *opaque){
+static void vdeslirp_unregister_poll_socket(slirp_os_socket fd, void *opaque) {
 	(void) fd;
 	(void) opaque;
 }
@@ -381,7 +388,7 @@ static void *slirp_daemon(void *opaque) {
 		int pollout;
 		uint32_t timeout = -1;
 		slirp->pfd_len = 1;
-		slirp_pollfds_fill(slirp->slirp, &timeout, vdeslirp_add_poll, slirp);
+		slirp_pollfds_fill_socket(slirp->slirp, &timeout, vdeslirp_add_poll, slirp);
 		update_ra_timeout(&timeout, slirp);
 		pollout = poll(slirp->pfd, slirp->pfd_len, timeout);
 		if (slirp->pfd[0].revents) {
